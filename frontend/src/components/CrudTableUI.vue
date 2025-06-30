@@ -1,8 +1,7 @@
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
-import { getProducts } from "@/api/product";
-import { getUsers } from "@/api/user";
-import { createProduct } from "@/api/product";
+import { ref, computed, watch } from "vue";
+import { getProducts, createProduct, deleteProduct, updateProduct } from "@/api/product";
+import { getUsers, createUser, deleteUser, updateUser } from "@/api/user";
 
 const props = defineProps({ type: String });
 const title = computed(() => (props.type === "user" ? "User" : "Product"));
@@ -41,7 +40,7 @@ async function fetchItems() {
   if (props.type === "user") {
     const users = await getUsers();
     items.value = users.map((u) => ({
-      _id: u._id.$oid,
+      _id: u._id?.$oid || u._id, // Support both formats
       firstName: u.firstName,
       lastName: u.lastName,
       age: u.age,
@@ -49,7 +48,7 @@ async function fetchItems() {
   } else {
     const products = await getProducts();
     items.value = products.map((p) => ({
-      _id: p._id.$oid,
+      _id: p._id?.$oid || p._id, // String or ObjectId here prevent undefined
       product_name: p.product_name,
       price: p.price,
       quantity: p.quantity,
@@ -75,6 +74,7 @@ function closeDialog() {
 }
 
 async function saveItem() {
+  // console.log(editedItem.value._id);
   try {
     if (props.type === "product") {
       const payload = {
@@ -82,11 +82,32 @@ async function saveItem() {
         price: Number(editedItem.value.price),
         quantity: Number(editedItem.value.quantity),
       };
-      await createProduct(payload);
+
+      if (editedItem.value._id) {
+        // console.log(editedItem.value);
+        // Update existing product
+        await updateProduct(editedItem.value._id, payload);
+      } else {
+        // Create new product
+        await createProduct(payload);
+      }
     } else {
-      // TODO: createUser() for real API
-      console.warn("User save not implemented yet");
+      // console.warn("User save not implemented yet");
+      const payload = {
+        username: editedItem.value.username,
+        password: editedItem.value.password,
+        firstName: editedItem.value.firstName,
+        lastName: editedItem.value.lastName,
+        age: Number(editedItem.value.age),
+        gender: editedItem.value.gender,
+      };
+      if (editedItem.value._id) {
+        await updateUser(editedItem.value._id, payload);
+      } else {
+        await createUser(payload);
+      }
     }
+
     await fetchItems();
     closeDialog();
   } catch (err) {
@@ -94,8 +115,27 @@ async function saveItem() {
   }
 }
 
-function deleteItem(id) {
-  items.value = items.value.filter((i) => i._id !== id);
+async function deleteItem(id) {
+  if (props.type === "product")
+    // console.log(id);
+    try {
+      await deleteProduct(id); // call the backend API
+      items.value = items.value.filter((i) => i._id !== id); // update frontend list
+      console.log("Deleted item with ID:", id);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      // optionally show a UI error message here
+    }
+  else {
+    try {
+      await deleteUser(id); // call the backend API
+      items.value = items.value.filter((i) => i._id !== id); // update frontend list
+      console.log("Deleted item with ID:", id);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      // optionally show a UI error message here
+    }
+  }
 }
 </script>
 
@@ -114,10 +154,10 @@ function deleteItem(id) {
 
       <v-data-table :headers="headers" :items="items" item-value="_id" class="elevation-1">
         <template #item.actions="{ item }">
-          <v-btn icon @click="openDialog(item)">
+          <v-btn icon variant="text" @click="openDialog(item)">
             <v-icon>bi bi-pencil</v-icon>
           </v-btn>
-          <v-btn icon @click="deleteItem(item._id)">
+          <v-btn icon variant="text" @click="deleteItem(item._id)">
             <v-icon color="red">bi bi-trash</v-icon>
           </v-btn>
         </template>
@@ -134,9 +174,12 @@ function deleteItem(id) {
         <v-card-text>
           <!-- User Fields -->
           <template v-if="type === 'user'">
+            <v-text-field v-model="editedItem.username" label="Username" required />
+            <v-text-field v-model="editedItem.password" label="Password" required />
             <v-text-field v-model="editedItem.firstName" label="First Name" required />
             <v-text-field v-model="editedItem.lastName" label="Last Name" required />
             <v-text-field v-model="editedItem.age" label="Age" type="number" required />
+            <v-text-field v-model="editedItem.gender" label="Gender" required />
           </template>
 
           <!-- Product Fields -->
