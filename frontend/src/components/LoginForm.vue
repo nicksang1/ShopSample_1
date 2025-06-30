@@ -8,6 +8,7 @@
       <v-card-text>
         <v-form @submit.prevent="handleLogin">
           <v-text-field
+            prepend-inner-icon="bi bi-person"
             v-model="username"
             label="Username"
             type="text"
@@ -16,6 +17,7 @@
           ></v-text-field>
 
           <v-text-field
+            prepend-inner-icon="bi bi-lock"
             v-model="password"
             label="Password"
             type="password"
@@ -23,8 +25,23 @@
             variant="outlined"
           ></v-text-field>
 
-          <v-btn type="submit" block class="mt-3"> Login </v-btn>
-
+          <v-row class="mt-4" dense>
+            <v-col cols="6">
+              <v-btn to="/register" append-icon="bi bi-person-plus" variant="outlined" block
+                >Register</v-btn
+              >
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                type="submit"
+                append-icon="bi bi-box-arrow-in-right"
+                variant="outlined"
+                color="primary"
+                block
+                >Login</v-btn
+              >
+            </v-col>
+          </v-row>
           <v-alert v-if="error" type="error" class="mt-3" dense>
             {{ error }}
           </v-alert>

@@ -4,6 +4,8 @@ import HomeView from "../views/HomeView.vue";
 import LoginPage from "../views/LoginPage.vue";
 import { useAuthStore } from "@/stores/auth";
 import OrderView from "@/views/OrderView.vue";
+import CrudTableUI from "@/components/CrudTableUI.vue";
+import RegisterView from "@/views/RegisterView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,8 +42,18 @@ const router = createRouter({
     {
       path: "/manage",
       name: "manage",
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresAdmin: true },
       component: () => import("../views/ManageView.vue"),
+    },
+    {
+      path: "/unauthorized",
+      name: "unauthorized",
+      component: () => import("../views/UnauthorizedView.vue"),
+    },
+    {
+      path: "/register",
+      name: "Register",
+      component: RegisterView,
     },
   ],
 });
@@ -55,6 +67,7 @@ router.beforeEach((to, from, next) => {
     auth.loadToken();
   }
 
+  const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
   if (to.name === "login" && auth.isAuthenticated) {
@@ -76,6 +89,10 @@ router.beforeEach((to, from, next) => {
       if (decoded.exp && decoded.exp < currentTime) {
         auth.logout();
         return next("/login");
+      }
+      // Check for admin access if required
+      if (requiresAdmin && !auth.isAdmin) {
+        return next("/unauthorized"); // or show an "unauthorized" page
       }
 
       // Token valid

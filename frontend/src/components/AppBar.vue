@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app title="My Vite App">
+  <v-app-bar app :title="isAdmin ? 'Vite App Admin Mode' : 'My Vite App'">
     <v-spacer />
 
     <div
@@ -36,14 +36,30 @@
       </template>
 
       <v-list>
-        <!-- <v-list-item link @click="onProfileClick">
-          <v-list-item-title>Profile</v-list-item-title>
-        </v-list-item> -->
-        <v-list-item link @click="onManageClick">
-          <v-list-item-title>Manage</v-list-item-title>
+        <!-- Optional Profile -->
+        <!--
+  <v-list-item link @click="onProfileClick">
+    <v-list-item-title>
+      <v-icon start>bi bi-person</v-icon>
+      Profile
+    </v-list-item-title>
+  </v-list-item>
+  -->
+
+        <!-- Manage (Admin only) -->
+        <v-list-item v-if="isAdmin" link @click="onManageClick">
+          <v-list-item-title>
+            <v-icon start>bi bi-gear</v-icon>
+            Manage
+          </v-list-item-title>
         </v-list-item>
+
+        <!-- Logout -->
         <v-list-item link @click="onLogoutClick">
-          <v-list-item-title>Logout</v-list-item-title>
+          <v-list-item-title>
+            <v-icon start>bi bi-box-arrow-right</v-icon>
+            Logout
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -67,6 +83,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const auth = useAuthStore();
 const isAuthenticated = computed(() => auth.isAuthenticated);
+const isAdmin = computed(() => auth.isAdmin);
 
 // console.log(auth.user);
 

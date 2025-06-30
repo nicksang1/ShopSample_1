@@ -6,5 +6,10 @@ const users = new mongoose.Schema({
   lastName: { type: String },
   age: { type: Number },
   gender: { type: String },
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
 });
 module.exports = mongoose.model("users", users);

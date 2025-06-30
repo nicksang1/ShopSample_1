@@ -4,6 +4,7 @@ import { getProducts, createProduct, deleteProduct, updateProduct } from "@/api/
 import { getUsers, createUser, deleteUser, updateUser } from "@/api/user";
 
 const props = defineProps({ type: String });
+
 const title = computed(() => (props.type === "user" ? "User" : "Product"));
 
 const headers = computed(() => {
@@ -100,12 +101,14 @@ async function saveItem() {
         lastName: editedItem.value.lastName,
         age: Number(editedItem.value.age),
         gender: editedItem.value.gender,
+        role: editedItem.value.role,
       };
       if (editedItem.value._id) {
         await updateUser(editedItem.value._id, payload);
       } else {
         await createUser(payload);
       }
+      // console.log(payload);
     }
 
     await fetchItems();
@@ -174,19 +177,80 @@ async function deleteItem(id) {
         <v-card-text>
           <!-- User Fields -->
           <template v-if="type === 'user'">
-            <v-text-field v-model="editedItem.username" label="Username" required />
-            <v-text-field v-model="editedItem.password" label="Password" required />
-            <v-text-field v-model="editedItem.firstName" label="First Name" required />
-            <v-text-field v-model="editedItem.lastName" label="Last Name" required />
-            <v-text-field v-model="editedItem.age" label="Age" type="number" required />
-            <v-text-field v-model="editedItem.gender" label="Gender" required />
+            <v-text-field
+              v-model="editedItem.username"
+              label="Username"
+              required
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="editedItem.password"
+              label="Password"
+              required
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="editedItem.firstName"
+              label="First Name"
+              required
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="editedItem.lastName"
+              label="Last Name"
+              required
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="editedItem.age"
+              label="Age"
+              type="number"
+              required
+              variant="outlined"
+              :rules="[(v) => v >= 1 || 'Age must be 1 or greater']"
+            />
+            <!-- <v-text-field v-model="editedItem.gender" label="Gender" required /> -->
+            <v-combobox
+              v-model="editedItem.gender"
+              label="Gender"
+              :items="['Male', 'Female', 'Other']"
+              required
+              variant="outlined"
+            ></v-combobox>
+            <v-switch
+              v-model="editedItem.role"
+              :label="`Role: ${editedItem.role || 'user'} `"
+              false-value="user"
+              true-value="admin"
+              hide-details
+              color="green"
+              required
+              variant="outlined"
+            ></v-switch>
           </template>
 
           <!-- Product Fields -->
           <template v-else>
-            <v-text-field v-model="editedItem.product_name" label="Product Name" required />
-            <v-text-field v-model="editedItem.price" label="Price" type="number" required />
-            <v-text-field v-model="editedItem.quantity" label="Quantity" type="number" required />
+            <v-text-field
+              v-model="editedItem.product_name"
+              label="Product Name"
+              variant="outlined"
+              required
+            />
+            <v-text-field
+              v-model="editedItem.price"
+              label="Price"
+              type="number"
+              variant="outlined"
+              required
+            />
+            <v-text-field
+              v-model="editedItem.quantity"
+              label="Quantity"
+              variant="outlined"
+              type="number"
+              required
+            />
           </template>
         </v-card-text>
 

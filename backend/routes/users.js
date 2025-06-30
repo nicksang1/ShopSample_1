@@ -62,7 +62,7 @@ router.get("/:id", async function (req, res, next) {
 router.post("/", async function (req, res, next) {
   // res.send('method post');
   try {
-    const { username, password, firstName, lastName, age, gender } = req.body;
+    const { username, password, firstName, lastName, age, gender, role } = req.body;
     // hash password
     const hashed_pass = await bcrypt.hash(password, 12);
     let newUser = new userModel({
@@ -72,6 +72,7 @@ router.post("/", async function (req, res, next) {
       lastName: lastName,
       age: age,
       gender: gender,
+      role: role,
     });
     let user = await newUser.save();
     return res.status(201).send({
