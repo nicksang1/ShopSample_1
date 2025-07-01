@@ -7,7 +7,15 @@ export const getUsers = async () => {
 };
 
 export const createUser = async (user) => {
-  const res = await axios.post("/users", user);
+  const isFormData = user instanceof FormData;
+
+  const res = await axios.post("/users", user, {
+    headers: {
+      ...(isFormData && { "Content-Type": "multipart/form-data" }),
+    },
+  });
+
+  console.log(res.data.data);
   return res.data.data;
 };
 

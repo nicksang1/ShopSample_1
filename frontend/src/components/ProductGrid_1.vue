@@ -5,7 +5,7 @@
     <v-row dense>
       <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4" lg="3">
         <v-card class="h-100" hover>
-          <v-img :src="product.image" height="200px" cover></v-img>
+          <v-img :src="product.picture" height="200px" cover></v-img>
 
           <v-card-title>{{ product.name }}</v-card-title>
 
@@ -31,8 +31,12 @@
 import { ref, onMounted } from "vue";
 import { getProducts } from "@/api/product.js";
 import { cart } from "@/stores/cart.js";
+import noImage from "@/assets/no-img.png";
 
 const products = ref([]);
+// const imageUrl = computed(() => {
+//   return `http://localhost:3000/uploads/products/${auth.user?.username}.jpg`;
+// });
 
 onMounted(async () => {
   const raw = await getProducts();
@@ -43,7 +47,7 @@ onMounted(async () => {
     price: item.price,
     stock: item.quantity,
     description: item.description || "No description",
-    image: `https://picsum.photos/300/200?random=${index + 1}`,
+    picture: item.picture ? `http://localhost:3000${item.picture}` : noImage,
   }));
 });
 </script>

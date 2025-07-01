@@ -18,7 +18,7 @@ export const useAuthStore = defineStore("auth", {
           this.token = stored;
           this.user = payload;
         } else {
-          this.logout(); // clear token if expired
+          this.logout();
         }
       }
     },

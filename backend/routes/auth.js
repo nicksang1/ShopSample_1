@@ -44,6 +44,7 @@ router.post("/", async (req, res) => {
         firstname: user.firstName,
         lastname: user.lastName,
         role: user.role,
+        picture: user.picture,
       },
       SECRET_KEY,
       {

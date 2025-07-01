@@ -13,6 +13,7 @@ const headers = computed(() => {
       { title: "First Name", key: "firstName" },
       { title: "Last Name", key: "lastName" },
       { title: "Age", key: "age" },
+      { title: "Role", key: "role" },
       { title: "Actions", key: "actions", sortable: false },
     ];
   } else {
@@ -28,6 +29,7 @@ const headers = computed(() => {
 const items = ref([]);
 const dialog = ref(false);
 const editedItem = ref({});
+const selectedFile = ref(null);
 
 watch(
   () => props.type,
@@ -45,6 +47,7 @@ async function fetchItems() {
       firstName: u.firstName,
       lastName: u.lastName,
       age: u.age,
+      role: u.role,
     }));
   } else {
     const products = await getProducts();
@@ -60,6 +63,7 @@ async function fetchItems() {
 function openDialog(item = null) {
   if (item) {
     editedItem.value = { ...item };
+    // selectedFile.value = null;
   } else {
     editedItem.value =
       props.type === "user"
@@ -75,25 +79,25 @@ function closeDialog() {
 }
 
 async function saveItem() {
-  // console.log(editedItem.value._id);
   try {
     if (props.type === "product") {
-      const payload = {
-        product_name: editedItem.value.product_name,
-        price: Number(editedItem.value.price),
-        quantity: Number(editedItem.value.quantity),
-      };
+      const formData = new FormData();
+      formData.append("product_name", editedItem.value.product_name);
+      formData.append("price", editedItem.value.price);
+      formData.append("quantity", editedItem.value.quantity);
+
+      if (editedItem.value.picture) {
+        formData.append("picture", editedItem.value.picture);
+      }
 
       if (editedItem.value._id) {
-        // console.log(editedItem.value);
-        // Update existing product
-        await updateProduct(editedItem.value._id, payload);
+        await updateProduct(editedItem.value._id, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } else {
-        // Create new product
-        await createProduct(payload);
+        await createProduct(formData);
       }
     } else {
-      // console.warn("User save not implemented yet");
       const payload = {
         username: editedItem.value.username,
         password: editedItem.value.password,
@@ -103,12 +107,12 @@ async function saveItem() {
         gender: editedItem.value.gender,
         role: editedItem.value.role,
       };
+
       if (editedItem.value._id) {
         await updateUser(editedItem.value._id, payload);
       } else {
         await createUser(payload);
       }
-      // console.log(payload);
     }
 
     await fetchItems();
@@ -143,7 +147,7 @@ async function deleteItem(id) {
 </script>
 
 <template>
-  <v-container class="pa-4" max-width="900">
+  <v-container class="pa-4">
     <v-card>
       <v-card-title>
         {{ title }} Management
@@ -250,6 +254,15 @@ async function deleteItem(id) {
               variant="outlined"
               type="number"
               required
+            />
+            <v-file-input
+              v-model="editedItem.picture"
+              label="Product Picture"
+              accept="image/*"
+              prepend-icon="bi bi-image"
+              clearable
+              show-size
+              variant="underlined"
             />
           </template>
         </v-card-text>

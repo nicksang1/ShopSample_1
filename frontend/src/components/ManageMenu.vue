@@ -1,13 +1,12 @@
 <template>
-  <v-container class="py-10" max-width="600px">
+  <v-container class="py-10 mx-auto" style="max-width: 1000px">
     <v-fade-transition mode="out-in">
       <div :key="selected">
-        <!-- Admin Menu -->
         <template v-if="!selected">
           <h1 class="text-h4 mb-6 text-center">
             <v-icon size="36">bi bi-gear</v-icon>
           </h1>
-          <v-row justify="center" align="center" dense>
+          <v-row justify="center" align="center">
             <v-col cols="12" sm="6">
               <v-card class="pa-4 text-center" hover @click="selected = 'user'">
                 <v-icon size="48" class="mb-2">bi bi-person</v-icon>
@@ -23,7 +22,6 @@
           </v-row>
         </template>
 
-        <!-- CRUD Page -->
         <template v-else>
           <v-btn @click="selected = null" icon variant="tonal" class="mb-4">
             <v-icon>bi bi-arrow-left</v-icon>

@@ -14,8 +14,14 @@ export const getProducts = async () => {
 };
 
 export const createProduct = async (product) => {
+  // console.log(product);
   try {
-    const response = await axios.post("/products", product);
+    const response = await axios.post("/products", product, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    // console.log(response.data.data);
     return response.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

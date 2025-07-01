@@ -17,7 +17,7 @@
     </div>
     <v-btn
       v-if="isAuthenticated"
-      variant="tonal"
+      variant="text"
       icon="bi bi-box-seam"
       style="white-space: nowrap"
       @click="onBoxBtnClick"
@@ -30,21 +30,23 @@
         <v-btn text v-bind="props" aria-label="User menu" class="d-flex align-center">
           <span class="mr-2">{{ auth.user?.username }}</span>
           <v-avatar size="32">
-            <img src="https://i.pravatar.cc/150?img=3" alt="Profile" />
+            <template v-if="!imageError">
+              <v-img :src="imageUrl" alt="Profile Picture" cover @error="imageError = true" />
+            </template>
+            <template v-else>
+              <v-icon size="32">bi bi-question-circle</v-icon>
+            </template>
           </v-avatar>
         </v-btn>
       </template>
 
       <v-list>
-        <!-- Optional Profile -->
-        <!--
-  <v-list-item link @click="onProfileClick">
-    <v-list-item-title>
-      <v-icon start>bi bi-person</v-icon>
-      Profile
-    </v-list-item-title>
-  </v-list-item>
-  -->
+        <!-- <v-list-item link @click="onProfileClick">
+          <v-list-item-title>
+            <v-icon start>bi bi-pencil-square</v-icon>
+            Profile
+          </v-list-item-title>
+        </v-list-item> -->
 
         <!-- Manage (Admin only) -->
         <v-list-item v-if="isAdmin" link @click="onManageClick">
@@ -77,13 +79,33 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
-import { computed, onMounted } from "vue";
+import { watch, computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const auth = useAuthStore();
 const isAuthenticated = computed(() => auth.isAuthenticated);
 const isAdmin = computed(() => auth.isAdmin);
+
+const imageError = ref(false);
+
+// Create a reactive version number to bust the cache when user changes
+const imageVersion = ref(Date.now());
+
+const imageUrl = computed(() => {
+  return `http://localhost:3000/uploads/profiles/${auth.user?.username}.jpg?v=${imageVersion.value}`;
+});
+
+// Watch the username to reset image error and update the cache buster
+watch(
+  () => auth.user?.username,
+  (newUsername, oldUsername) => {
+    if (newUsername !== oldUsername) {
+      imageError.value = false; // Reset error state for new image
+      imageVersion.value = Date.now(); // Update version to force reload
+    }
+  }
+);
 
 // console.log(auth.user);
 

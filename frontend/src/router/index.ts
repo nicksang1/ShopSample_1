@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/auth";
 import OrderView from "@/views/OrderView.vue";
 import CrudTableUI from "@/components/CrudTableUI.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import GradeCalcView from "@/views/GradeCalcView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,6 +56,7 @@ const router = createRouter({
       name: "Register",
       component: RegisterView,
     },
+    { path: "/grade", name: "grade", component: GradeCalcView },
   ],
 });
 

@@ -11,5 +11,9 @@ const users = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+  picture: {
+    type: String, // path to img in ./upload/..
+    default: "",
+  },
 });
 module.exports = mongoose.model("users", users);
